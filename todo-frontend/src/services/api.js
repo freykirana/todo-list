@@ -1,6 +1,16 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+// Smart API URL detection:
+// - On tunnel (trycloudflare.com): use same origin (Nginx proxies /api to backend)
+// - On localhost: use localhost:4000 directly
+const getAPIURL = () => {
+  if (typeof window !== 'undefined' && window.location.hostname.includes('trycloudflare.com')) {
+    return window.location.origin; // Nginx will handle /api routing
+  }
+  return import.meta.env.VITE_API_URL || 'http://localhost:4000';
+};
+
+const API_URL = getAPIURL();
 
 const apiClient = axios.create({
   baseURL: API_URL,
@@ -42,8 +52,8 @@ export const tasksAPI = {
 // Categories API calls
 export const categoriesAPI = {
   getCategories: () => apiClient.get('/api/categories'),
-  createCategory: (nama_kategori) =>
-    apiClient.post('/api/categories', { nama_kategori }),
+  createCategory: (data) => apiClient.post('/api/categories', data),
+  create: (data) => apiClient.post('/api/categories', data),
 };
 
 export default apiClient;

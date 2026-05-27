@@ -1,0 +1,17 @@
+tunnel: todo-app
+credentials-file: C:\Users\[YOUR_USERNAME]\.cloudflared\todo-app.json
+
+ingress:
+  # Frontend route
+  - hostname: frontend.todo-app-xxxxx.cloudflareaccess.com
+    service: http://localhost:5173
+  
+  # Backend API route
+  - hostname: api.todo-app-xxxxx.cloudflareaccess.com
+    service: http://localhost:4000
+  
+  # Catch-all route (frontend)
+  - service: http://localhost:5173
+
+# Optional: Enable debug logging
+loglevel: info

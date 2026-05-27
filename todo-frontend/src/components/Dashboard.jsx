@@ -3,6 +3,7 @@ import StatsCards from './StatsCards';
 import TaskFilter from './TaskFilter';
 import TaskForm from './TaskForm';
 import TaskList from './TaskList';
+import CategoryForm from './CategoryForm';
 import { tasksAPI, categoriesAPI } from '../services/api';
 import '../styles/dashboard.css';
 
@@ -77,6 +78,13 @@ export default function Dashboard({ user, onLogout }) {
     }
   };
 
+  const handleCategoryAdded = (newCategory) => {
+    // Refresh categories from server to ensure consistency
+    fetchCategories();
+    // Refresh tasks in case any are related
+    fetchTasks();
+  };
+
   return (
     <div className="dashboard">
       <header className="dashboard-header">
@@ -95,6 +103,8 @@ export default function Dashboard({ user, onLogout }) {
         <StatsCards tasks={tasks} />
 
         {error && <div className="alert alert-error">{error}</div>}
+
+        <CategoryForm onCategoryAdded={handleCategoryAdded} />
 
         <TaskFilter
           onSearch={handleSearch}

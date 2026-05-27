@@ -3,7 +3,7 @@ import prisma from '../config/db.js';
 // Get all tasks with optional filtering
 export const getTasks = async (req, res) => {
   try {
-    const { search, status } = req.query;
+    const { search, status, categoryId } = req.query;
     const userId = req.user.id;
 
     // Build where clause for filtering
@@ -35,6 +35,11 @@ export const getTasks = async (req, res) => {
         equals: status,
         mode: 'insensitive'
       };
+    }
+
+    // Add category filter if provided
+    if (categoryId) {
+      where.categoryId = parseInt(categoryId);
     }
 
     const tasks = await prisma.task.findMany({

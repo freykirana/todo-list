@@ -54,6 +54,7 @@ export const categoriesAPI = {
   getCategories: () => apiClient.get('/api/categories'),
   createCategory: (data) => apiClient.post('/api/categories', data),
   create: (data) => apiClient.post('/api/categories', data),
+  deleteCategory: (id) => apiClient.delete(`/api/categories/${id}`),
 };
 
 export default apiClient;

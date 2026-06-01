@@ -1,5 +1,5 @@
 import express from 'express';
-import { getCategories, createCategory } from '../controllers/categoryController.js';
+import { getCategories, createCategory, deleteCategory } from '../controllers/categoryController.js';
 import authMiddleware from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -12,5 +12,8 @@ router.get('/', getCategories);
 
 // Create new category
 router.post('/', createCategory);
+
+// Delete category
+router.delete('/:id', deleteCategory);
 
 export default router;

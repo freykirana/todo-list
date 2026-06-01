@@ -19,9 +19,7 @@ const CategoryForm = ({ onCategoryAdded }) => {
 
     try {
       setLoading(true);
-      const response = await categoriesAPI.create({
-        nama_kategori: categoryName.trim()
-      });
+      const response = await categoriesAPI.createCategory({ nama_kategori: categoryName.trim() });
       
       const newCategory = response.data?.category;
       

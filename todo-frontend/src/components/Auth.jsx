@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { authAPI } from '../services/api';
+import { useNotification } from '../context/NotificationContext';
 import '../styles/auth.css';
 
 export default function Auth({ onLogin, onSwitchView }) {
+  const { showNotification } = useNotification();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     nama: '',
@@ -27,15 +29,18 @@ export default function Auth({ onLogin, onSwitchView }) {
         const { data } = await authAPI.login(formData.email, formData.password);
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
+        showNotification('Login berhasil!', 'success', 2000);
         onLogin(data.user);
       } else {
         await authAPI.register(formData.nama, formData.email, formData.password);
+        showNotification('Registrasi berhasil! Silakan login.', 'success', 3000);
         setIsLogin(true);
         setFormData({ nama: '', email: '', password: '' });
-        setError('Registration successful! Please login.');
       }
     } catch (err) {
-      setError(err.response?.data?.error || 'An error occurred');
+      const errorMessage = err.response?.data?.error || 'Terjadi kesalahan';
+      showNotification(errorMessage, 'error', 4000);
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -47,10 +52,6 @@ export default function Auth({ onLogin, onSwitchView }) {
         <h1 className="auth-title">
           {isLogin ? '📝 Login' : '✍️ Register'}
         </h1>
-        
-        {error && <div className={`alert ${isLogin && error.includes('successful') ? 'alert-success' : 'alert-error'}`}>
-          {error}
-        </div>}
 
         <form onSubmit={handleSubmit}>
           {!isLogin && (

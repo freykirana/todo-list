@@ -35,12 +35,30 @@ export default function TaskForm({ onTaskCreated, editingTask, onEditComplete, c
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const getMinDate = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
+      // Validate due date is not in the past
+      if (formData.due_date) {
+        const selectedDate = new Date(formData.due_date);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Reset time to start of day
+
+        if (selectedDate < today) {
+          setError('Due date cannot be in the past');
+          setLoading(false);
+          return;
+        }
+      }
+
       const taskData = {
         title: formData.title,
         description: formData.description,
@@ -171,6 +189,7 @@ export default function TaskForm({ onTaskCreated, editingTask, onEditComplete, c
                   name="due_date"
                   value={formData.due_date}
                   onChange={handleChange}
+                  min={getMinDate()}
                 />
               </div>
 

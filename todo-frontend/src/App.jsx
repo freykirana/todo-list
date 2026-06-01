@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import Auth from './components/Auth'
 import Dashboard from './components/Dashboard'
+import Notification from './components/Notification'
+import { NotificationProvider } from './context/NotificationContext'
 import './App.css'
 
 export default function App() {
@@ -31,13 +33,16 @@ export default function App() {
   }
 
   return (
-    <div className="app">
-      {user ? (
-        <Dashboard user={user} onLogout={handleLogout} />
-      ) : (
-        <Auth onLogin={handleLogin} />
-      )}
-    </div>
+    <NotificationProvider>
+      <Notification />
+      <div className="app">
+        {user ? (
+          <Dashboard user={user} onLogout={handleLogout} />
+        ) : (
+          <Auth onLogin={handleLogin} />
+        )}
+      </div>
+    </NotificationProvider>
   )
 }
 

@@ -10,12 +10,34 @@ dotenv.config();
 const app = express();
 
 // Middleware
-const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-app.use(cors({
-  origin: frontendUrl,
+// Smart CORS: accept localhost & cloud tunnel
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or Postman)
+    if (!origin) return callback(null, true);
+    
+    // Allow localhost on any port
+    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+      return callback(null, true);
+    }
+    
+    // Allow cloud tunnel
+    if (origin.includes('trycloudflare.com')) {
+      return callback(null, true);
+    }
+    
+    // Allow specific frontend URL from .env (for production)
+    if (process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL) {
+      return callback(null, true);
+    }
+    
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
-}));
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Routes

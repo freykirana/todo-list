@@ -4,6 +4,7 @@ import TaskFilter from './TaskFilter';
 import TaskForm from './TaskForm';
 import TaskList from './TaskList';
 import CategoryForm from './CategoryForm';
+import CategoryList from './CategoryList';
 import { tasksAPI, categoriesAPI } from '../services/api';
 import '../styles/dashboard.css';
 
@@ -45,6 +46,13 @@ export default function Dashboard({ user, onLogout }) {
     }
   };
 
+  const handleTaskCreatedOrUpdated = async () => {
+    // Refresh both tasks and categories when task is created/updated
+    // This ensures category task count is updated
+    await fetchTasks();
+    await fetchCategories();
+  };
+
   const handleSearch = (value) => {
     setSearch(value);
     fetchTasks(value, statusFilter, categoryFilter);
@@ -64,6 +72,7 @@ export default function Dashboard({ user, onLogout }) {
     try {
       await tasksAPI.deleteTask(id);
       fetchTasks();
+      fetchCategories(); // Refresh category task count
     } catch (err) {
       setError('Failed to delete task');
     }
@@ -73,6 +82,7 @@ export default function Dashboard({ user, onLogout }) {
     try {
       await tasksAPI.updateTask(id, { status: newStatus });
       fetchTasks();
+      fetchCategories(); // Refresh category task count
     } catch (err) {
       setError('Failed to update task status');
     }
@@ -83,6 +93,18 @@ export default function Dashboard({ user, onLogout }) {
     fetchCategories();
     // Refresh tasks in case any are related
     fetchTasks();
+  };
+
+  const handleDeleteCategory = (categoryId) => {
+    // Refresh categories and tasks after deletion
+    fetchCategories();
+    // Reset category filter if the deleted category was selected
+    if (categoryFilter === categoryId || categoryFilter === String(categoryId)) {
+      setCategoryFilter('');
+      fetchTasks(search, statusFilter, '');
+    } else {
+      fetchTasks();
+    }
   };
 
   return (
@@ -106,6 +128,11 @@ export default function Dashboard({ user, onLogout }) {
 
         <CategoryForm onCategoryAdded={handleCategoryAdded} />
 
+        <CategoryList 
+          categories={categories}
+          onCategoryDeleted={handleDeleteCategory}
+        />
+
         <TaskFilter
           onSearch={handleSearch}
           onStatusChange={handleStatusChange}
@@ -114,11 +141,11 @@ export default function Dashboard({ user, onLogout }) {
         />
 
         <TaskForm
-          onTaskCreated={fetchTasks}
+          onTaskCreated={handleTaskCreatedOrUpdated}
           editingTask={editingTask}
           onEditComplete={() => {
             setEditingTask(null);
-            fetchTasks();
+            handleTaskCreatedOrUpdated();
           }}
           categories={categories}
         />

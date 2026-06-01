@@ -4,31 +4,25 @@ import prisma from '../config/db.js';
 export const getTasks = async (req, res) => {
   try {
     const { search, status, categoryId } = req.query;
-    const userId = req.user.id;
 
     // Build where clause for filtering
-    const where = {
-      userId
-    };
+    // No userId filter - all users can see all tasks (global tasks)
+    const where = {};
 
     // Add search filter if provided
     if (search) {
-      where.AND = [
+      where.OR = [
         {
-          OR: [
-            {
-              title: {
-                contains: search,
-                mode: 'insensitive'
-              }
-            },
-            {
-              description: {
-                contains: search,
-                mode: 'insensitive'
-              }
-            }
-          ]
+          title: {
+            contains: search,
+            mode: 'insensitive'
+          }
+        },
+        {
+          description: {
+            contains: search,
+            mode: 'insensitive'
+          }
         }
       ];
     }
@@ -78,12 +72,10 @@ export const getTasks = async (req, res) => {
 export const getTaskById = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.user.id;
 
-    const task = await prisma.task.findFirst({
+    const task = await prisma.task.findUnique({
       where: {
-        id: parseInt(id),
-        userId
+        id: parseInt(id)
       },
       include: {
         category: true,

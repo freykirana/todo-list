@@ -13,18 +13,22 @@ export const getTasks = async (req, res) => {
 
     // Add search filter if provided
     if (search) {
-      where.OR = [
+      where.AND = [
         {
-          title: {
-            contains: search,
-            mode: 'insensitive'
-          }
-        },
-        {
-          description: {
-            contains: search,
-            mode: 'insensitive'
-          }
+          OR: [
+            {
+              title: {
+                contains: search,
+                mode: 'insensitive'
+              }
+            },
+            {
+              description: {
+                contains: search,
+                mode: 'insensitive'
+              }
+            }
+          ]
         }
       ];
     }
